@@ -11,7 +11,7 @@ CSc 372 Spring 2025 Assignment
 * [What and how to submit](#submit)
 
 
-**Due Wednesday, April 9, 2025 at 11:59PM**
+**Due Friday, April 11, 2025 at 11:59PM**
 
 You can work with anyone on this assignment.  
 I especially recommend asking questions on the Chapel
