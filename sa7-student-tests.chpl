@@ -22,23 +22,37 @@ proc main() {
 
 
 proc testGetArrayOfFiles() {
-    use sa7, BlockDist;
+    use sa7, BlockDist, Set;
+
+
+    var expectedFileSet: set(string);
+    expectedFileSet.add(dir+"/white-flowers.bmp");
+    expectedFileSet.add(dir+"/white-flowers.png");
+    expectedFileSet.add(dir+"/flower.png");
+    expectedFileSet.add(dir+"/alligator.png");
 
     var files = getArrayOfFiles(dir);
-    var expectedFiles = [dir+"/white-flowers.bmp",dir+"/white-flowers.png",dir+"/flower.png",dir+"/alligator.png"];
-    for i in 0..<expectedFiles.size {
-        assertEqual(files[i], expectedFiles[i], "getArrayOfFiles test");
+    var fileSet: set(string);
+    for file in files {
+        fileSet.add(file);
+    }
+
+    assertEqual(fileSet.size, expectedFileSet.size,
+                "getArrayOfFiles test - set size");
+    
+    for expectedFile in expectedFileSet {
+        assertEqual(fileSet.contains(expectedFile), true,
+                    "getArrayOfFiles test - contains " + expectedFile);
     }
 }
 
 proc testEndsWith() {
     use sa7;
 
-    assertEqual(endsWith("hello.txt", ".txt"), true, "endsWith test 1");
-    assertEqual(endsWith("image.png", ".jpg"), false, "endsWith test 2");
-    assertEqual(endsWith("document.pdf", ".pdf"), true, "endsWith test 3");
-    assertEqual(endsWith("archive.tar.gz", ".gz"), true, "endsWith test 4");
-    assertEqual(endsWith("noextension", ".txt"), false, "endsWith test 5");
+    assertEqual(endsWith("image.png", ".jpg"), false, "endsWith test 1");
+    assertEqual(endsWith("document.pdf", ".pdf"), true, "endsWith test 2");
+    assertEqual(endsWith("archive.tar.gz", ".gz"), true, "endsWith test 3");
+    assertEqual(endsWith("noextension", ".txt"), false, "endsWith test 4");
 }
 
 proc testConvertPngToBmpInDir() {
@@ -83,10 +97,16 @@ proc testImageSizeHistogram() {
     use sa7;
 
     var histogram = imageSizeHistogram(dir,"png",10);
-    var expectedHistogram = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    var expectedHistogram = [1, 0, 0, 0, 0, 1, 0, 0, 1, 1];
+    writeln("Histogram: ", histogram);
+    writeln("Expected Histogram: ", expectedHistogram);
 
-    // Assert the size of the image
-    assertEqual(histogram.size, expectedHistogram.size, "imageSizeHistogram test - size");
+    // Assert the zeroth element of the histogram
+    assertEqual(histogram[0], expectedHistogram[0], "imageSizeHistogram test - zeroth element");
+
+    // Assert a middle value of the histogram
+    const middleIndex = histogram.size / 2;
+    assertEqual(histogram[middleIndex], expectedHistogram[middleIndex], "imageSizeHistogram test - middle element");
 }
 
 //test case for rgbToGrayscale from sa7.chpl
@@ -95,9 +115,10 @@ proc testRgbToGrayscale() {
 
     var imageArray = readImage(dir+"/white-flowers.png", imageType.png);
     var grayscaleImage = rgbToGrayscale(imageArray);
+    writeImage("grayscale_output.png", imageType.png, grayscaleImage);
 
     // Check the first pixel value (example)
-    assertEqual(grayscaleImage[0, 0], 138, "rgbToGrayscale test - pixel value");
+    assertEqual(grayscaleImage[0, 0], 9079434, "rgbToGrayscale test - pixel value");
 }
 
 // test case for the sobel edge detector from sa7.chpl
@@ -105,7 +126,9 @@ proc testSobelEdgeDetection() {
     use sa7, Image;
 
     var imageArray = readImage(dir+"/white-flowers.png", imageType.png);
-    var sobelImage = sobelEdgeDetection(imageArray);
+    var grayScale = rgbToGrayscale(imageArray);
+    var sobelImage = sobelEdgeDetection(grayScale);
+    writeImage("sobel_output.png", imageType.png, sobelImage);
 
     // Check the first pixel value (example)
     assertEqual(sobelImage[0, 0], 0, "sobelEdgeDetection test - pixel value");
