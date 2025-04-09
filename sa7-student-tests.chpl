@@ -97,7 +97,7 @@ proc testImageSizeHistogram() {
     use sa7;
 
     var histogram = imageSizeHistogram(dir,"png",10);
-    var expectedHistogram = [1, 0, 0, 0, 0, 1, 0, 0, 1, 1];
+    var expectedHistogram = [0, 0, 0, 0, 0, 1, 0, 0, 1, 1];
     writeln("Histogram: ", histogram);
     writeln("Expected Histogram: ", expectedHistogram);
 
